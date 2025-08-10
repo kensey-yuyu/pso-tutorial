@@ -1,6 +1,9 @@
-# PSO (Particle Swarm Optimization)
+# PSO-Tutorial
 
-This repository is PSO program on python. This program can search cec2013 benchmarks.
+Particle Swarm Optimization (PSO) is one of the swarm intelligence methods.
+This repository is written by Python and can be used to search the CEC2013 benchmarks.
+It is coded for beginners, so the programs are probably easy to read.
+Therefore, its execution speed is not very fast.
 
 ## Setup
 
@@ -16,14 +19,18 @@ This repository is PSO program on python. This program can search cec2013 benchm
 
 ### bash for setup environments
 
-```
+```bash
 cd PSO
 bash setup.sh
 ```
 
 ## Run
 
-```
+The number of particles, iterations and dimensions etc. are defined as arguments.
+The hyperparameters $w$, $c1$, $c2$ are also defined in the same way.
+Please check argument help.
+
+```bash
 python3 main.py -f (any_number)
 ```
 
@@ -31,3 +38,7 @@ python3 main.py -f (any_number)
 
 - cec2013single: <https://github.com/dmolina/cec2013single>
 - Problem Definitions and Evaluation Criteria for the CEC 2013 Special Session on Real-Parameter Optimization: <https://www.al-roomi.org/multimedia/CEC_Database/CEC2013/RealParameterOptimization/CEC2013_RealParameterOptimization_TechnicalReport.pdf>
+
+## TODO
+
+- Replace existing evaluation function codes with manually written implementations

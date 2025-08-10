@@ -4,103 +4,104 @@ import numpy as np
 class Particle:
     """Particle.
 
-    Args:
-        dim (int): Dimension.
+    Attributes:
+        dim (int): The number of dimension.
+        limit_init_velocity (float): Limit of initial velocity.
+        weight (float): Weight of velocity. It is hyperparameter.
+        c1 (float): Weight of personal best. It is hyperparameter.
+        c2 (float): Weight of global best. It is hyperparameter.
         upper (float): Upper boundary of domain search.
         lower (float): Lower boundary of domain search.
-        limit_init_speed (float): Limit of initial speed.
-        weight (float): Weight for update speed.
-        c1 (float): Hyper parameter for bias of global best.     
-        c2 (float): Hyper parameter for bias of personal best.    
+        fitness (float): The fitness.
+        position (np.ndarray): The position.
+        velocity (np.ndarray): The velocity.
+        personal_best_fitness: The personal best fitness.
+        personal_best_position: The personal best position.
+        history (dict[str, list[float | np.ndarray]]): The history of particle.
     """
 
     def __init__(
         self,
-        dim,
-        upper,
-        lower,
-        limit_init_speed,
-        weight,
-        c1,
-        c2
+        dim: int,
+        upper: float,
+        lower: float,
+        limit_init_velocity: float,
+        weight: float,
+        c1: float,
+        c2: float
     ) -> None:
-        self.dim = dim
-        self.weight = weight
-        self.c1 = c1
-        self.c2 = c2
-        self.upper = upper
-        self.lower = lower
-        self.position = np.random.uniform(lower, upper, dim)
-        self.speed = np.random.uniform(-limit_init_speed,
-                                       limit_init_speed, dim)
-        self.fitness = float("inf")
-        self.personal_best = float("inf")
-        self.personal_best_position = np.full(dim, float("inf"))
-        self.history = {
-            "position": [],
-            "speed": [],
-            "fitness": [],
-            "personal_best": [],
-            "personal_best_position": []
+        self.dim: int = dim
+        self.weight: float = weight
+        self.c1: float = c1
+        self.c2: float = c2
+        self.upper: float = upper
+        self.lower: float = lower
+        self.fitness: float = np.inf
+        self.position: np.ndarray = np.random.uniform(lower, upper, dim)
+        self.velocity: np.ndarray = np.random.uniform(-limit_init_velocity,
+                                                      limit_init_velocity, dim)
+        self.personal_best_fitness: float = np.inf
+        self.personal_best_position: np.ndarray = np.full(dim, np.inf)
+        self.history: dict[str, list[float | np.ndarray]] = {
+            "fitnesses": [],
+            "positions": [],
+            "velocities": [],
+            "personal_best_fitnesses": [],
+            "personal_best_positions": []
         }
-        self.history["position"].append(self.position)
-        self.history["speed"].append(self.speed)
+        self.history["positions"].append(self.position.copy())
+        self.history["velocities"].append(self.velocity.copy())
+        return
+
+    def calculate_fitness(self, function) -> None:
+        """Calculate fitness with current position.
+
+        Args:
+            function (): Evaluation function.
+        """
+
+        # Check if position is outside lower and upper bounds.
+        if (self.lower <= self.position).all() and (self.position <= self.upper).all():
+            self.fitness = function(self.position)
+        else:
+            # If position is outside lower and upper bounds, fitness is invalid.
+            self.fitness = np.nan
+        self.history["fitnesses"].append(self.fitness)
+        return
+
+    def update_velocity(self, global_best_position: np.ndarray) -> None:
+        """Update velocity.
+
+        Args:
+            global_best_position (np.ndarray): Global best position.
+        """
+
+        # NOTE: In this program, the random numbers are generated for each dimension.
+        self.velocity = self.weight * self.velocity + \
+            self.c1 * np.random.rand(*self.velocity.shape) * \
+            (self.personal_best_position - self.position) + \
+            self.c2 * np.random.rand(*self.velocity.shape) * \
+            (global_best_position - self.position)
+        self.history["velocities"].append(self.velocity.copy())
         return
 
     def update_position(self) -> None:
-        self.position = self.position + self.speed
-        while ((self.position < self.lower).any() and (self.upper < self.position).any()):
-            over = np.where(self.position > self.upper,
-                            self.position - self.upper, 0)
-            self.position = self.position - 2 * over
-            under = np.where(self.position < self.lower,
-                             self.lower - self.position, 0)
-            self.position = self.position + 2 * under
-        self.history["position"].append(self.position)
-        return
+        """Update position.
+        """
 
-    def update_speed(self, global_best_position) -> None:
-        self.speed = self.weight * self.speed \
-            + self.c1 * np.random.random(self.dim) * (global_best_position - self.position) \
-            + self.c2 * np.random.random(self.dim) * \
-            (self.personal_best_position - self.position)
-        self.history["speed"].append(self.speed)
-        return
-
-    def update_fitness(self, fitness) -> None:
-        self.fitness = fitness
-        self.history["fitness"].append(self.fitness)
+        self.position = self.position + self.velocity
+        self.history["positions"].append(self.position.copy())
         return
 
     def update_personal_best(self) -> None:
-        update = self.fitness < self.personal_best
-        if update:
-            self.personal_best = self.fitness
-        self.update_personal_best_position(update)
-        self.history["personal_best"].append(self.personal_best)
+        """Update personal best.
+        """
+
+        if self.fitness < self.personal_best_fitness:
+            self.personal_best_fitness = self.fitness
+            self.personal_best_position = self.position.copy()
+        self.history["personal_best_fitnesses"].append(
+            self.personal_best_fitness)
+        self.history["personal_best_positions"].append(
+            self.personal_best_position.copy())
         return
-
-    def update_personal_best_position(self, update) -> None:
-        if update:
-            self.personal_best_position = self.position
-        self.history["personal_best_position"].append(
-            self.personal_best_position)
-        return
-
-    def get_position(self) -> np.ndarray:
-        return self.position
-
-    def get_speed(self) -> np.ndarray:
-        return self.speed
-
-    def get_fitness(self) -> float:
-        return self.fitness
-
-    def get_personal_best(self) -> float:
-        return self.personal_best
-
-    def get_personal_best_position(self) -> np.ndarray:
-        return self.personal_best_position
-
-    def get_history(self) -> dict:
-        return self.history
