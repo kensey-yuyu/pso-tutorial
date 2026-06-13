@@ -1,6 +1,7 @@
 import argparse
 
 from pso.pso import PSO
+from utils.logger import Logger
 
 
 def main(
@@ -41,6 +42,19 @@ def main(
     print(f"upper_bound: {upper_bound}")
     print(f"iterations: {iterations}\n")
 
+    # Initialize the logger.
+    logger = Logger(
+        num_particles=num_particles,
+        weight=weight,
+        c1=c1,
+        c2=c2,
+        func_num=func_num,
+        num_dims=num_dims,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        iterations=iterations,
+    )
+
     # Particle Swarm Optimization (PSO) is initialized.
     pso = PSO(
         num_particles=num_particles,
@@ -52,6 +66,7 @@ def main(
         lower_bound=lower_bound,
         upper_bound=upper_bound,
         iterations=iterations,
+        logger=logger,
     )
     pso.optimize()
 

@@ -3,6 +3,7 @@ from tqdm import tqdm
 
 from pso.functions.functions import Functions
 from pso.particle import Particle
+from utils.logger import Logger
 
 
 class PSO:
@@ -17,6 +18,7 @@ class PSO:
         lower_bound: float,
         upper_bound: float,
         iterations: int,
+        logger: Logger,
     ) -> None:
         """Initialize the Particle Swarm Optimization.
 
@@ -30,6 +32,7 @@ class PSO:
             lower_bound (float): Lower bound of the search space
             upper_bound (float): Upper bound of the search space
             iterations (int): Number of iterations
+            logger (Logger): Logger instance for logging optimization progress
         """
 
         self.num_particles: int = num_particles
@@ -41,6 +44,7 @@ class PSO:
         self.lower_bound: float = lower_bound
         self.upper_bound: float = upper_bound
         self.iterations: int = iterations
+        self.logger: Logger = logger
 
         # Functions are initialized.
         self.functions = Functions(func_num=func_num, num_dims=num_dims)
@@ -69,6 +73,12 @@ class PSO:
             particle.evaluate(func=self.functions.get_func())
             particle.update_personal_best()
         self.update_global_best()
+        self.logger.log(
+            iteration=0,
+            particles=self.particles,
+            global_best_position=self.global_best_position,
+            global_best_value=self.global_best_value,
+        )
         print(f"Initial Global Best Value: {self.global_best_value}")
 
         # Optimize the function for the specified number of iterations.
@@ -96,6 +106,14 @@ class PSO:
 
             # Update the global best position and value.
             self.update_global_best()
+
+            # Log the optimization progress.
+            self.logger.log(
+                iteration=iter + 1,
+                particles=self.particles,
+                global_best_position=self.global_best_position,
+                global_best_value=self.global_best_value,
+            )
 
             # FIXME: format the iteration number and global best value.
             tqdm.write(
