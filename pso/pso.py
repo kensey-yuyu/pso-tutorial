@@ -115,9 +115,8 @@ class PSO:
                 global_best_value=self.global_best_value,
             )
 
-            # FIXME: format the iteration number and global best value.
             tqdm.write(
-                f"Iteration {iter + 1}/{self.iterations}, Global Best Value: {self.global_best_value}"
+                f"Iteration {iter + 1:>{len(str(self.iterations))}}/{self.iterations}, Global Best Value: {self.global_best_value}"
             )
 
         return
