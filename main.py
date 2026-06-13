@@ -1,69 +1,103 @@
 import argparse
 
-from cec2013single.cec2013 import Benchmark
-from pso import PSO
-from utils import Logger, set_seed
+from pso.pso import PSO
+from utils.logger import Logger
 
 
-def main() -> None:
-    """Main function for PSO-Tutorial.
+def main(
+    num_particles: int,
+    weight: float,
+    c1: float,
+    c2: float,
+    func_num: int,
+    num_dims: int,
+    lower_bound: float,
+    upper_bound: float,
+    iterations: int,
+) -> None:
+    """Main function for the Particle Swarm Optimization.
+
+    Args:
+        num_particles (int): Number of particles
+        weight (float): Inertia weight
+        c1 (float): Cognitive parameter
+        c2 (float): Social parameter
+        func_num (int): Function number to optimize
+        num_dims (int): Number of dimensions
+        lower_bound (float): Lower bound of the search space
+        upper_bound (float): Upper bound of the search space
+        iterations (int): Number of iterations
     """
 
-    # Define arguments.
-    parser = argparse.ArgumentParser(
-        prog="PSO-Tutorial", description="Tutorial for Particle Swarm Optimization(PSO). These programs are  written by Python 3. If you want the PSO which run fast, you need to find others.")
-    parser.add_argument("--seed", action="store",
-                        type=int, help="seed value for radom number generation")
-    parser.add_argument("--function", "--func", "-f", action="store",
-                        type=int, required=True, help="function number of cec2013 single objective optimization")
-    parser.add_argument("--dimension", "--dim", "-d", action="store",
-                        default=10, type=int, help="number of dimension (default: 10)")
-    parser.add_argument("--n", "-n", action="store", default=30,
-                        type=int, help="number of particles (default: 30)")
-    parser.add_argument("--iterations", "--iter", "-i", action="store",
-                        type=int, default=1000, help="number of iteration (default: 1000)")
-    parser.add_argument("--limit-init-velocity", action="store", default=0,
-                        type=float, help="limit of initial velocity (default: 0)")
-    parser.add_argument("--weight", action="store",
-                        default=0.729, type=float, help="weight hyperparameter for update particle positions (default: 0.729)")
-    parser.add_argument("--c1", action="store", default=1.4955,
-                        type=float, help="c1 hyperparameter for update particle positions (default: 1.4955)")
-    parser.add_argument("--c2", action="store", default=1.4955,
-                        type=float, help="c2 hyperparameter for update particle positions (default: 1.4955)")
-    parser.add_argument("--save-name", action="store",
-                        default=None, type=str, help="directory name to save results")
-    args = parser.parse_args()
+    print("Hello from pso-tutorial!\n")
 
-    # Initialize logger.
-    logger = Logger(args.save_name)
+    # Shows the parameters defined as arguments.
+    print(f"num_particles: {num_particles}")
+    print(f"weight: {weight}")
+    print(f"c1: {c1}")
+    print(f"c2: {c2}")
+    print(f"func_num: {func_num}")
+    print(f"num_dims: {num_dims}")
+    print(f"lower_bound: {lower_bound}")
+    print(f"upper_bound: {upper_bound}")
+    print(f"iterations: {iterations}\n")
 
-    # Set seed.
-    seed: int = args.seed
-    if not seed:
-        set_seed(seed)
+    # Initialize the logger.
+    logger = Logger(
+        num_particles=num_particles,
+        weight=weight,
+        c1=c1,
+        c2=c2,
+        func_num=func_num,
+        num_dims=num_dims,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        iterations=iterations,
+    )
 
-    # Load benchmark function from cec2013single written by dmolina (https://github.com/dmolina/cec2013single).
-    function_number: int = args.function
-    dim: int = args.dimension
-    benchmark = Benchmark()
-    benchmark_function = benchmark.get_function(
-        function_number)
-    info = benchmark.get_info(function_number, dim)
-    upper: int = info["upper"]
-    lower: int = info["lower"]
-
-    # Initialize PSO.
-    pso = PSO(args.n, args.iterations, dim, float(upper), float(lower), args.limit_init_velocity,
-              args.weight, args.c1, args.c2, benchmark_function)
-
-    # Explore optimum.
+    # Particle Swarm Optimization (PSO) is initialized.
+    pso = PSO(
+        num_particles=num_particles,
+        weight=weight,
+        c1=c1,
+        c2=c2,
+        func_num=func_num,
+        num_dims=num_dims,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        iterations=iterations,
+        logger=logger,
+    )
     pso.optimize()
-
-    # Save log.
-    logger.save(pso.get_history())
 
     return
 
 
 if __name__ == "__main__":
-    main()
+    # Parses the command-line arguments.
+    parser = argparse.ArgumentParser(description="Run the PSO tutorial.")
+    parser.add_argument("--num-particles", type=int, help="Number of particles")
+    parser.add_argument("--weight", type=float, help="Inertia weight")
+    parser.add_argument("--c1", type=float, help="Cognitive parameter")
+    parser.add_argument("--c2", type=float, help="Social parameter")
+    parser.add_argument(
+        "--func-num",
+        type=int,
+        help="Function number to optimize 1: Sphere, 2: Rastrigin",
+    )
+    parser.add_argument("--num-dims", type=int, help="Number of dimensions")
+    parser.add_argument(
+        "--lower-bound",
+        type=float,
+        help="Lower bound of the search space",
+    )
+    parser.add_argument(
+        "--upper-bound",
+        type=float,
+        help="Upper bound of the search space",
+    )
+    parser.add_argument("--iterations", type=int, help="Number of iterations")
+    args = parser.parse_args()
+    args_dict = vars(args)
+
+    main(**args_dict)

@@ -1,44 +1,27 @@
 # PSO-Tutorial
 
-Particle Swarm Optimization (PSO) is one of the swarm intelligence methods.
-This repository is written by Python and can be used to search the CEC2013 benchmarks.
-It is coded for beginners, so the programs are probably easy to read.
-Therefore, its execution speed is not very fast.
+This is a tutorial for Particle Swarm Optimization (PSO).
+The code in this repository are simple and easy to understand.
+As a result, the performance is not optimized.
 
-## Setup
+## How to run
 
-### Environments
-
-- Cython: 3.0.12
-- matplotlib: 3.10.0
-- numpy: 2.2.3
-- cec2013single: 0.1
-- setuptools: 75.8.1
-- wheel: 0.45.1
-- tqdm: 4.67.1
-
-### bash for setup environments
+This project us as the package manager.
+You can configure the optimization parameters using command-line options.
+Run the PSO using the command below:
 
 ```bash
-cd PSO
-bash setup.sh
+uv run main.py --num-particles NUM_PARTICLES \
+               --weight WEIGHT \
+               --c1 C1 \
+               --c2 C2 \
+               --func-num FUNC_NUM \
+               --num-dims NUM_DIMS \
+               --lower-bound LOWER_BOUND \
+               --upper-bound UPPER_BOUND \
+               --iterations ITERATIONS
 ```
 
-## Run
-
-The number of particles, iterations and dimensions etc. are defined as arguments.
-The hyperparameters $w$, $c1$, $c2$ are also defined in the same way.
-Please check argument help.
-
-```bash
-python3 main.py -f (any_number)
-```
-
-## Reference
-
-- cec2013single: <https://github.com/dmolina/cec2013single>
-- Problem Definitions and Evaluation Criteria for the CEC 2013 Special Session on Real-Parameter Optimization: <https://www.al-roomi.org/multimedia/CEC_Database/CEC2013/RealParameterOptimization/CEC2013_RealParameterOptimization_TechnicalReport.pdf>
-
-## TODO
-
-- Replace existing evaluation function codes with manually written implementations
+Use the `--func-num` option to specify the objective function to optimize.
+Run with `--help` for details on available functions.
+Currently, the **sphere function** and **rastrigin function** are implemented as examples.
